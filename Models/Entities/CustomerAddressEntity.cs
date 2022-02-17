@@ -5,6 +5,15 @@ namespace Api_uppgift_1.Models.Entities
 {
     public class CustomerAddressEntity
     {
+        public CustomerAddressEntity(string streetName, int postalCode, string city, string country)
+        {
+            StreetName = streetName;
+            PostalCode = postalCode;
+            City = city;
+            Country = country;
+        }
+
+
         [Key]
         public int Id { get; set; }
 

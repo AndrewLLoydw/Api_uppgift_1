@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Api_uppgift_1;
 using Api_uppgift_1.Models.Entities;
 using Api_uppgift_1.Models;
+using Api_uppgift_1.Models.Create;
 
 namespace Api_uppgift_1.Controllers
 {
@@ -24,16 +25,17 @@ namespace Api_uppgift_1.Controllers
         }
 
 
-
-
-
         // GET: api/Customer
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerModel>>> GetCustomers()
         {
             var items = new List<CustomerModel>();
-            foreach (var item in await _context.Customers.ToListAsync())
-                items.Add(new CustomerModel(item.Id, item.FirstName, item.LastName, item.Email));
+            foreach (var item in await _context.Customers.Include(x => x.Address).ToListAsync())
+            {
+                items.Add
+                    (new CustomerModel(item.Id, item.FirstName, item.LastName, item.Email,
+                    new CustomerAddressModel(item.Address.StreetName, item.Address.PostalCode, item.Address.City, item.Address.Country)));
+            }
 
             return items;
         }
@@ -44,16 +46,18 @@ namespace Api_uppgift_1.Controllers
 
         // GET: api/Customer/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<CustomerEntity>> GetCustomerEntity(int id)
+        public async Task<ActionResult<CustomerModel>> GetCustomerEntity(int id)
         {
-            var customerEntity = await _context.Customers.FindAsync(id);
+            var customerEntity = await _context.Customers.Include(x => x.Address).FirstOrDefaultAsync(x => x.Id == id);
 
             if (customerEntity == null)
-            {
+            {   
                 return NotFound();
             }
 
-            return customerEntity;
+            return 
+                new CustomerModel(customerEntity.Id, customerEntity.FirstName, customerEntity.LastName, customerEntity.Email,
+                new CustomerAddressModel(customerEntity.Address.StreetName, customerEntity.Address.PostalCode, customerEntity.Address.City, customerEntity.Address.Country));
         }
 
 
@@ -98,12 +102,22 @@ namespace Api_uppgift_1.Controllers
         // POST: api/Customer
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CustomerEntity>> PostCustomerEntity(CustomerEntity customerEntity)
+        public async Task<ActionResult<CustomerModel>> PostCustomerEntity(CreateCustomer model)
         {
+            if(await _context.Customers.AnyAsync(x => x.Email == model.Email))
+                return Conflict();
+
+            var customerEntity = new CustomerEntity(model.FirstName, model.LastName, model.Email, model.Password);
+
+            var customerAddress = await _context.Addresses.FirstOrDefaultAsync(x => x.StreetName == model.StreetName && x.PostalCode == model.PostalCode && x.City == model.City);
+            if(customerAddress != null)
+                customerEntity.AddressId = customerAddress.Id;
+
+            else
+                customerEntity.Address = new CustomerAddressEntity(model.StreetName, model.PostalCode, model.City, model.Country)
+
             _context.Customers.Add(customerEntity);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCustomerEntity", new { id = customerEntity.Id }, customerEntity);
         }
 
 
