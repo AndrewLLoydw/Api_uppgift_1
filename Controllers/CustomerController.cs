@@ -110,14 +110,16 @@ namespace Api_uppgift_1.Controllers
             var customerEntity = new CustomerEntity(model.FirstName, model.LastName, model.Email, model.Password);
 
             var customerAddress = await _context.Addresses.FirstOrDefaultAsync(x => x.StreetName == model.StreetName && x.PostalCode == model.PostalCode && x.City == model.City);
-            if(customerAddress != null)
+            if (customerAddress != null)
                 customerEntity.AddressId = customerAddress.Id;
 
             else
-                customerEntity.Address = new CustomerAddressEntity(model.StreetName, model.PostalCode, model.City, model.Country)
+                customerEntity.AddressEntity = new CustomerAddressEntity(model.StreetName, model.PostalCode, model.City, model.Country);
 
             _context.Customers.Add(customerEntity);
             await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
 
