@@ -114,7 +114,7 @@ namespace Api_uppgift_1.Controllers
                 customerEntity.AddressId = customerAddress.Id;
 
             else
-                customerEntity.AddressEntity = new CustomerAddressEntity(model.StreetName, model.PostalCode, model.City, model.Country);
+                customerEntity.Address = new CustomerAddressEntity(model.StreetName, model.PostalCode, model.City, model.Country);
 
             _context.Customers.Add(customerEntity);
             await _context.SaveChangesAsync();

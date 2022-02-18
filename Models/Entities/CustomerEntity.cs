@@ -22,15 +22,6 @@ namespace Api_uppgift_1.Models.Entities
             Password = password;
         }
 
-        public CustomerEntity(string firstName, string lastName, string email, string password, CustomerAddressModel address)
-        {
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
-            Password = password;
-            Address = address;
-        }
-
         [Key]
         public int Id { get; set; }
 
@@ -60,9 +51,7 @@ namespace Api_uppgift_1.Models.Entities
 
         public int AddressId { get; set; }
 
-        public CustomerAddressModel Address { get; set; }
-
-        public CustomerAddressEntity AddressEntity { get; set; }
+        public CustomerAddressEntity Address { get; set; }
 
         public virtual ICollection<OrderEntity> Orders { get; set; }
     }
