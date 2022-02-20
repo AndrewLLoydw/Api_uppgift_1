@@ -43,11 +43,11 @@ namespace Api_uppgift_1.Models.Entities
 
         [Required]
         [Column(TypeName = "datetime2")]
-        public DateTime Created { get; set; }
+        public DateTime Created { get; set; } = DateTime.Now;
 
         [Required]
         [Column(TypeName = "datetime2")]
-        public DateTime Updated { get; set; }
+        public DateTime Updated { get; set; } = DateTime.Now;
 
         public int AddressId { get; set; }
 

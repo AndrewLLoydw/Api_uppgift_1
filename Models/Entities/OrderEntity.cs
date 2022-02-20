@@ -3,29 +3,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Api_uppgift_1.Models.Entities
 {
-    public enum Statuses
-    {
-        Created,
-        Sent,
-        Delivered
-    }
 
     public class OrderEntity
-    {
+    { 
+
+        public OrderEntity()
+        {
+
+        }
+
+        public OrderEntity(CustomerEntity customer, ICollection<ProductEntity> products, decimal orderPrice, string orderStatus)
+        {
+            Customer = customer;
+            Products = products;
+            OrderPrice = orderPrice;
+            Status = orderStatus;
+        }
+
+
         [Key]
         public int Id { get; set; }
 
         [Required]
         [Column(TypeName = "datetime2")]
-        public DateTime Created { get; set; }
+        public DateTime Created { get; set; } = DateTime.Now;
 
         [Required]
         [Column(TypeName = "datetime2")]
-        public DateTime Updated { get; set; }
+        public DateTime Updated { get; set; } = DateTime.Now;
 
         [Required]
         [Column(TypeName = "nvarchar(50)")]
-        public List<ProductEntity> Products { get; set; }
+        public ICollection<ProductEntity> Products { get; set; }
 
         [Required]
         public int ProductQuantity { get; set; }
@@ -33,6 +42,10 @@ namespace Api_uppgift_1.Models.Entities
         [Required]
         [Column(TypeName = "nvarchar(50)")]
         public string Status { get; set; }
+
+        [Required]
+        [Column(TypeName = "varchar(20)")]
+        public decimal OrderPrice { get; set; }
 
         public int CustomerId { get; set; }
         public int ProductId { get; set; }

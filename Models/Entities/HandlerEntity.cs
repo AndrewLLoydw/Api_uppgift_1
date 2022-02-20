@@ -5,6 +5,14 @@ namespace Api_uppgift_1.Models.Entities
 {
     public class HandlerEntity
     {
+
+        public HandlerEntity(string firstName, string lastName, string email)
+        {
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+        }
+
         [Key]
         public int Id { get; set; }
 
