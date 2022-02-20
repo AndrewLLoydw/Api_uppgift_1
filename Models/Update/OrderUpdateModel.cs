@@ -2,13 +2,12 @@
 {
     public class OrderUpdateModel
     {
-        public OrderUpdateModel(decimal orderPrice, string status)
+        public OrderUpdateModel( string status)
         {
-            OrderPrice = orderPrice;
             Status = status;
         }
 
-        public decimal OrderPrice { get; set; }
+        public int Id { get; set; }
         public string Status { get; set; }
     }
 }

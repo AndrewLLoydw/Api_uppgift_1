@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Api_uppgift_1;
 using Api_uppgift_1.Models.Entities;
 using Api_uppgift_1.Models;
+using Api_uppgift_1.Models.Update;
+using Api_uppgift_1.Models.Create;
 
 namespace Api_uppgift_1.Controllers
 {
@@ -17,6 +19,7 @@ namespace Api_uppgift_1.Controllers
     public class OrderController : ControllerBase
     {
         private readonly SqlContext _context;
+        private string orderStatus;
 
         public OrderController(SqlContext context)
         {
@@ -50,7 +53,7 @@ namespace Api_uppgift_1.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderModel>> GetOrder(int id)
         {
-            var orderEntity = await _context.Orders.Include(x => x.Customer).Include(x => x.Products).FirstOrDefaultAsync();
+            var orderEntity = await _context.Orders.Include(x => x.Customer).Include(x => x.Products).FirstOrDefaultAsync(x => x.Id == id);
             List<ProductListModel> products = new();
 
             foreach(var product in orderEntity.Products)
@@ -68,15 +71,21 @@ namespace Api_uppgift_1.Controllers
 
 
 
+
+
         // PUT: api/Order/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrderEntity(int id, OrderEntity orderEntity)
+        public async Task<IActionResult> PutOrderEntity(int id, OrderUpdateModel model)
         {
-            if (id != orderEntity.Id)
+            if (id != model.Id)
             {
                 return BadRequest();
             }
+
+            var orderEntity = await _context.Orders.FindAsync(model.Id);
+            orderEntity.Updated = DateTime.Now;
+            orderEntity.Status = model.Status;
 
             _context.Entry(orderEntity).State = EntityState.Modified;
 
@@ -99,15 +108,29 @@ namespace Api_uppgift_1.Controllers
             return NoContent();
         }
 
+
+
+
+
+
+
+
         // POST: api/Order
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<OrderEntity>> PostOrderEntity(OrderEntity orderEntity)
+        public async Task<ActionResult<OrderEntity>> PostOrderEntity(CreateOrder model)
         {
-            _context.Orders.Add(orderEntity);
+            var products = new List<ProductListModel>();
+            var customer = await _context.Customers.Where(x => x.Id == model.CustomerId).FirstOrDefaultAsync();
             await _context.SaveChangesAsync();
 
+            if(!await _context.Customers.AnyAsync(x => x.Id == model.CustomerId))
+                return BadRequest();
+
+            var orderEntity = new OrderEntity(model.CustomerId, model.Product, model.Status, model.OrderPrice);
+
             return CreatedAtAction("GetOrderEntity", new { id = orderEntity.Id }, orderEntity);
+
         }
 
         // DELETE: api/Order/5

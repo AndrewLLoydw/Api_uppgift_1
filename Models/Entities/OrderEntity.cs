@@ -6,10 +6,12 @@ namespace Api_uppgift_1.Models.Entities
 
     public class OrderEntity
     { 
-
-        public OrderEntity()
+        public OrderEntity(int customerId, ICollection<ProductEntity> products, string orderStatus, decimal orderPrice)
         {
-
+            CustomerId = customerId;
+            Products = products;
+            Status = orderStatus;
+            OrderPrice = orderPrice;
         }
 
         public OrderEntity(CustomerEntity customer, ICollection<ProductEntity> products, decimal orderPrice, string orderStatus)

@@ -6,6 +6,12 @@
         {
 
         }
+        public ProductListModel(string productNumber, string productName, decimal productPrice)
+        {
+            ProductNumber = productNumber;
+            ProductName = productName;
+            ProductPrice = productPrice;
+        }
 
         public ProductListModel(int id, string productNumber, string productName, decimal productPrice)
         {

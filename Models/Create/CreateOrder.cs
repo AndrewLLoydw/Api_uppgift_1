@@ -7,16 +7,21 @@
 
         }
 
-        public int customerId;
-        public List<CreateProductList> products;
-
-        public int CustomerId
+        public CreateOrder(int customerId, List<CreateProductList> products, string status, decimal orderPrice)
         {
-            get { return customerId; } set { customerId = value; }
+            CustomerId = customerId;
+            Product = products;
+            Status = status;
+            OrderPrice = orderPrice;
+
         }
+
+        public List<CreateProductList> Product;
+
+        public int CustomerId { get; set; }
         public List<CreateProductList> product
         {
-            get {return product;}
+            get {return Product;}
             set
             {
                 var orderProducts = new List<CreateProductList>();
@@ -25,10 +30,12 @@
                     orderProducts.Add(new CreateProductList() { ProductNumber = item.ProductNumber, ProductPrice = item.ProductPrice });
                 };
 
-                products = orderProducts;
+                Product = orderProducts;
             }
         }
         public string Status { get; set; }
+
+        public decimal OrderPrice { get; set; }
 
         public DateTime OrderCreated { get; set; } = DateTime.Now;
     }
