@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Api_uppgift_1;
 using Api_uppgift_1.Models.Entities;
+using Api_uppgift_1.Models;
+using Api_uppgift_1.Models.Update;
+using Api_uppgift_1.Models.Create;
 
 namespace Api_uppgift_1.Controllers
 {
@@ -22,16 +25,32 @@ namespace Api_uppgift_1.Controllers
             _context = context;
         }
 
+
+
+
+
         // GET: api/Category
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryEntity>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryModel>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync();
+            var items = new List<CategoryModel>();
+            foreach (var item in await _context.Categories.Include(x => x.CategoryName).ToListAsync())
+            {
+                items.Add
+                    (new CategoryModel(item.CategoryName));
+            }
+
+            return items;
         }
+
+
+
+
+
 
         // GET: api/Category/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryEntity>> GetCategoryEntity(int id)
+        public async Task<ActionResult<CategoryModel>> GetCategoryEntity(int id)
         {
             var categoryEntity = await _context.Categories.FindAsync(id);
 
@@ -40,18 +59,26 @@ namespace Api_uppgift_1.Controllers
                 return NotFound();
             }
 
-            return categoryEntity;
+            return new CategoryModel(categoryEntity.CategoryName);
         }
+
+
+
+
+
 
         // PUT: api/Category/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategoryEntity(int id, CategoryEntity categoryEntity)
+        public async Task<IActionResult> PutCategoryEntity(int id, CategoryUpdateModel model)
         {
-            if (id != categoryEntity.Id)
+            if (id != model.Id)
             {
                 return BadRequest();
             }
+
+            var categoryEntity = await _context.Categories.FindAsync(model.Id);
+            categoryEntity.CategoryName = model.CategoryName;
 
             _context.Entry(categoryEntity).State = EntityState.Modified;
 
@@ -74,16 +101,37 @@ namespace Api_uppgift_1.Controllers
             return NoContent();
         }
 
+
+
+
+
+
+
+
+
+
         // POST: api/Category
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CategoryEntity>> PostCategoryEntity(CategoryEntity categoryEntity)
+        public async Task<ActionResult<CategoryModel>> PostCategoryEntity(CreateCategoryModel model)
         {
+            if (await _context.Categories.AnyAsync(x => x.CategoryName == model.CategoryName))
+                return Conflict();
+
+            var categoryEntity = new CategoryEntity(model.CategoryName);
+
             _context.Categories.Add(categoryEntity);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategoryEntity", new { id = categoryEntity.Id }, categoryEntity);
+            return CreatedAtAction("GetCategoryEntity", new { id = categoryEntity.Id }, new CategoryModel(categoryEntity.CategoryName);
         }
+
+
+
+
+
+
+
 
         // DELETE: api/Category/5
         [HttpDelete("{id}")]
