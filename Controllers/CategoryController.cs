@@ -34,7 +34,7 @@ namespace Api_uppgift_1.Controllers
         public async Task<ActionResult<IEnumerable<CategoryModel>>> GetCategories()
         {
             var items = new List<CategoryModel>();
-            foreach (var item in await _context.Categories.Include(x => x.CategoryName).ToListAsync())
+            foreach (var item in await _context.Categories.ToListAsync())
             {
                 items.Add
                     (new CategoryModel(item.CategoryName));
@@ -123,7 +123,7 @@ namespace Api_uppgift_1.Controllers
             _context.Categories.Add(categoryEntity);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategoryEntity", new { id = categoryEntity.Id }, new CategoryModel(categoryEntity.CategoryName);
+            return CreatedAtAction("GetCategoryEntity", new { id = categoryEntity.Id }, new CategoryModel(categoryEntity.CategoryName));
         }
 
 

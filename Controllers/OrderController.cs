@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Api_uppgift_1;
 using Api_uppgift_1.Models.Entities;
+using Api_uppgift_1.Models;
 
 namespace Api_uppgift_1.Controllers
 {
@@ -22,26 +23,50 @@ namespace Api_uppgift_1.Controllers
             _context = context;
         }
 
+
+
+
+
         // GET: api/Order
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OrderEntity>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetOrders()
         {
-            return await _context.Orders.ToListAsync();
+            var items = new List<OrderModel>();
+            var products = new List<ProductListModel>();
+            foreach(var item in await _context.Orders.Include(x => x.Customer).Include(x => x.Products).ToListAsync())
+            {
+                items.Add(new OrderModel(item.Id, item.Created, item.Status, new CustomerModel(item.Customer.Id, item.Customer.FirstName, item.Customer.LastName, item.Customer.Email), new List<ProductListModel>(), item.OrderPrice));
+            }
+
+            return items;
+
         }
+
+
+
+
 
         // GET: api/Order/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrderEntity>> GetOrderEntity(int id)
+        public async Task<ActionResult<OrderModel>> GetOrder(int id)
         {
-            var orderEntity = await _context.Orders.FindAsync(id);
+            var orderEntity = await _context.Orders.Include(x => x.Customer).Include(x => x.Products).FirstOrDefaultAsync();
+            List<ProductListModel> products = new();
+
+            foreach(var product in orderEntity.Products)
+                products.Add(new ProductListModel(product.Id, product.ProductNumber, product.ProductName, product.ProductPrice));
 
             if (orderEntity == null)
             {
                 return NotFound();
             }
 
-            return orderEntity;
+            return new OrderModel(orderEntity.Id, orderEntity.Created, orderEntity.Status, new CustomerModel(orderEntity.Customer.Id, orderEntity.Customer.FirstName, orderEntity.Customer.LastName, orderEntity.Customer.Email), products, orderEntity.OrderPrice);
         }
+
+
+
+
 
         // PUT: api/Order/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

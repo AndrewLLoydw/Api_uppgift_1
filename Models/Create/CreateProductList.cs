@@ -14,6 +14,6 @@
         }
 
         public string ProductNumber { get; set; }
-        public decimal ProductPrice { get; set; }
+        public int ProductPrice { get; set; }
     }
 }

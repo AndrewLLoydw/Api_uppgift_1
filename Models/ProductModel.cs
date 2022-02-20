@@ -12,7 +12,7 @@
             ProductPrice = productPrice;
         }
 
-        public ProductModel(int productNumber, string productName, string productDescription, decimal productPrice, string categoryName)
+        public ProductModel(string productNumber, string productName, string productDescription, decimal productPrice, string categoryName)
         {
             ProductNumber = productNumber;
             ProductName = productName;
@@ -21,7 +21,7 @@
             CategoryName = categoryName;
         }
 
-        public int ProductNumber { get; set; }
+        public string ProductNumber { get; set; }
         public string ProductName { get; set; }
         public string ProductDescription { get; set; }
         public string CategoryName { get; set; }

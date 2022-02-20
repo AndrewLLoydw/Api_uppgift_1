@@ -10,7 +10,7 @@ namespace Api_uppgift_1.Models.Entities
 
         [Required]
         [Column(TypeName = "char(50)")]
-        public int ProductNumber { get; set; }
+        public string ProductNumber { get; set; }
 
         [Required]
         [Column(TypeName = "nvarchar(50)")]
