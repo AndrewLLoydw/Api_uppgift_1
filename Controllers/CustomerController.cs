@@ -10,6 +10,7 @@ using Api_uppgift_1;
 using Api_uppgift_1.Models.Entities;
 using Api_uppgift_1.Models;
 using Api_uppgift_1.Models.Create;
+using Api_uppgift_1.Models.Update;
 
 namespace Api_uppgift_1.Controllers
 {
@@ -67,14 +68,30 @@ namespace Api_uppgift_1.Controllers
         // PUT: api/Customer/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomerEntity(int id, CustomerEntity customerEntity)
+        public async Task<IActionResult> PutCustomerEntity(int id, CustomerUpdate model)
         {
-            if (id != customerEntity.Id)
+            if (id != model.Id)
             {
                 return BadRequest();
             }
 
+            var customerEntity = await _context.Customers.FindAsync(model.Id);
+            var customerAddressEntity = await _context.Addresses.FindAsync(model.Id);
+            if (customerEntity == null || customerAddressEntity == null)
+                return NotFound();
+
+            customerEntity.FirstName = model.FirstName;
+            customerEntity.LastName = model.LastName;
+            customerEntity.Email = model.Email;
+            customerEntity.Password = model.Password;
+            customerAddressEntity.StreetName = model.StreetName;
+            customerAddressEntity.PostalCode = model.PostalCode;
+            customerAddressEntity.City = model.City;
+            customerAddressEntity.Country = model.Country;
+            
+
             _context.Entry(customerEntity).State = EntityState.Modified;
+            _context.Entry(customerAddressEntity).State = EntityState.Modified;
 
             try
             {
@@ -104,7 +121,7 @@ namespace Api_uppgift_1.Controllers
         [HttpPost]
         public async Task<ActionResult<CustomerModel>> PostCustomerEntity(CreateCustomer model)
         {
-            if(await _context.Customers.AnyAsync(x => x.Email == model.Email))
+            if (await _context.Customers.AnyAsync(x => x.Email == model.Email))
                 return Conflict();
 
             var customerEntity = new CustomerEntity(model.FirstName, model.LastName, model.Email, model.Password);
@@ -131,16 +148,35 @@ namespace Api_uppgift_1.Controllers
         public async Task<IActionResult> DeleteCustomerEntity(int id)
         {
             var customerEntity = await _context.Customers.FindAsync(id);
+            var customerAddressEntity = await _context.Addresses.FindAsync(id);
             if (customerEntity == null)
             {
                 return NotFound();
             }
 
-            _context.Customers.Remove(customerEntity);
+            customerEntity.FirstName = "";
+            customerEntity.LastName = "";
+            customerEntity.Email = "";
+            customerEntity.Password = "";
+            customerAddressEntity.StreetName = "";
+            customerAddressEntity.PostalCode = 0;
+            customerAddressEntity.City = "";
+            customerAddressEntity.Country = "";
+
+
+            _context.Entry(customerEntity).State = EntityState.Modified;
+            _context.Entry(customerAddressEntity).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
+
+
+
+
+
+
 
         private bool CustomerEntityExists(int id)
         {
